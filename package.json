@@ -1,6 +1,6 @@
 {
   "name": "linebot_managergroup",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "\"# LineBot_ManagerGroup\"",
   "main": "index.js",
   "dependencies": {
