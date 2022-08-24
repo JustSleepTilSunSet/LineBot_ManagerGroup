@@ -1,30 +1,18 @@
-const express = require('express')
-const middleware = require('@line/bot-sdk').middleware
-const LINE = require('@line/bot-sdk')
+const express = require('express');
+const { PORT } = require('./constants/lineConfig');
 const JSONParseError = require('@line/bot-sdk').JSONParseError
 const SignatureValidationFailed = require('@line/bot-sdk').SignatureValidationFailed
+const { middleware } = require('./models/middleware/lineMiddleware');
 
-const app = express()
+const app = express();
+app.use(middleware);
 
-const config = {
-    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
-    channelSecret: process.env.LINE_CHANNEL_SECRET_TOKEN,
-};
-const BOT_UID = process.env.LINE_BOT_UID;
-const PORT = process.env.LINE_BOT_PORT;
-const client = new LINE.Client(config);
-app.use(middleware(config));
 app.get('/',(req,res)=>{
   console.log(`Welcome to app main page.`);
   res.send('OK');
 });
-app.post('/webhook', (req, res) => {
-  console.log(`Welcome to line hook me!`);
-  client.pushMessage(BOT_UID, 
-      { type: 'text', text: 'hello, world' }
-  );
-  res.json(req.body.events) // req.body will be webhook event object
-})
+
+app.use('/webhook', require('./routers/router'));
 
 app.use((err, req, res, next) => {
   if (err instanceof SignatureValidationFailed) {
@@ -37,5 +25,5 @@ app.use((err, req, res, next) => {
   next(err) // will throw default 500.
 });
 
-console.log(`Server running.`);
+console.log(`Server running port ${PORT}.`);
 app.listen(PORT);
